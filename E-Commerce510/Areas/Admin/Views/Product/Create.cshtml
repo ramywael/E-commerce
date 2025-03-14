@@ -1,0 +1,75 @@
+﻿@model Product
+<div class="container my-3">
+    <div class="row mb-3">
+        <div class="d-flex justify-content-between align-content-center">
+            <div class="display-6">
+                <a><i class="bi bi-arrow-left"></i></a> Create New Product
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <form action="/Admin/Product/Create" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <!-- Product Name -->
+                <label for="name" class="form-label">Product Name</label>
+                <input type="text" class="form-control" id="name" name="Name" value="@Model.Name">
+                <span class="text-danger d-block" asp-validation-for="Name"></span>
+
+                <!-- Product Description -->
+                <label for="Description" class="form-label">Product Description</label>
+                <input type="text" class="form-control" id="Description" name="Description" value="@Model.Description">
+                <span class="text-danger d-block" asp-validation-for="Description"></span>
+
+                <!-- Product Price -->
+                <label for="Price" class="form-label">Product Price</label>
+                <input type="number" class="form-control" id="Price" name="Price" value="@Model.Price">
+                <span class="text-danger d-block" asp-validation-for="Price"></span>
+
+                <!-- Product Img -->
+                <label for="Img" class="form-label">Product Img</label>
+                <input type="file" class="form-control" id="Img" name="file">
+                <img id="imagePreview" src="" alt="Image Preview" style="display: none; max-width: 100px; margin-top: 10px;">
+
+                <!-- Product Quantity -->
+                <label for="Quntity" class="form-label">Product Quantity</label>
+                <input type="number" class="form-control" id="Quntity" name="Quntity" value="@Model.Quntity">
+                <span class="text-danger d-block" asp-validation-for="Quntity"></span>
+
+                <!-- Product Discount -->
+                <label for="Discount" class="form-label">Product Discount</label>
+                <input type="number" class="form-control" id="Discount" name="Discount" value="@Model.Discount">
+                <span class="text-danger d-block" asp-validation-for="Discount"></span>
+
+                <!-- Category Name -->
+                <label for="Category Name" class="form-label">Category Name</label>
+                <select class="form-control mb-3" name="CategoryId">
+                    @foreach (var item in ViewBag.Category)
+                    {
+                        <option value="@item.Id">@item.Name</option>
+                    }
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('Img').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById('imagePreview');
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = '';
+            preview.style.display = 'none';
+        }
+    });
+</script>

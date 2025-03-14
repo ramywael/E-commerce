@@ -1,0 +1,63 @@
+﻿@using E_Commerce510.Models.ViewModel
+@model ProfileVm
+
+<div class="container mt-4">
+    <h2>Update Profile</h2>
+
+    <!-- Update Profile Form -->
+    <form asp-action="Profile" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+        <div class="form-group">
+            <label for="userName">Username</label>
+            <input asp-for="userName" class="form-control" id="userName" />
+            <span asp-validation-for="userName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input asp-for="email" class="form-control" id="email" />
+            <span asp-validation-for="email" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="address">Address</label>
+            <input asp-for="address" class="form-control" id="address" />
+            <span asp-validation-for="address" class="text-danger"></span>
+        </div>
+
+        <hr />
+        <h5>Change Password</h5>
+
+        <div class="form-group">
+            <label for="currentPassword">Current Password</label>
+            <input asp-for="currentPassword" class="form-control" type="password" id="currentPassword" />
+            <span asp-validation-for="currentPassword" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input asp-for="newPassword" class="form-control" type="password" id="newPassword" />
+            <span asp-validation-for="newPassword" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="confirmPassword">Confirm New Password</label>
+            <input asp-for="confirmPassword" class="form-control" type="password" id="confirmPassword" />
+            <span asp-validation-for="confirmPassword" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Update Profile</button>
+    </form>
+
+    <!-- Separate Form for Delete Account -->
+    <form asp-action="Delete" method="post" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-danger mt-3">Delete Account</button>
+    </form>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

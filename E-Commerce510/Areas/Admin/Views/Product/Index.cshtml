@@ -1,0 +1,99 @@
+﻿﻿
+@section Scripts {
+    @if (TempData["Notification"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: '@TempData["Notification"]',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        </script>
+    }
+}
+
+<div class="container my-3">
+    <div class="container-fluid">
+        <div class="row mb-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="display-6 m-0">All Products</h2>
+                <a href="/Admin/Product/Create" class="btn btn-success">
+                    <i class="bi bi-plus-square"></i> Create new product
+                </a>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col">
+                <table class="table table-hover text-center">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Quntity</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <th scope="row">@item.Id</th>
+                                <td>@item.Name</td>
+                                <td>@item.Price</td>
+                                @if (item.Quntity <= 1)
+                                {
+                                    <td class="bg-danger">@item.Quntity</td>
+                                }
+                                else
+                                {
+                                    <td>@item.Quntity</td>
+                                }
+
+                                <td>
+                                    <a href="/Admin/Product/Edit?productId=@item.Id" class="btn btn-warning rounded me-2">
+                                        <i class="bi bi-pencil-square"></i> Edit
+                                    </a>
+                                    <a href="#" class="btn btn-danger rounded delete-btn" data-product-id="@item.Id">
+                                        <i class="bi bi-trash3-fill"></i> Delete
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SweetAlert Script -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let deleteButtons = document.querySelectorAll(".delete-btn");
+
+        deleteButtons.forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault(); // Prevent default action
+                let productId = this.getAttribute("data-product-id");
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Yes, delete it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "/Admin/Product/Delete?productId=" + productId;
+                    }
+                });
+            });
+        });
+    });
+</script>

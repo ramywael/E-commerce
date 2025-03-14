@@ -1,0 +1,79 @@
+﻿<div class="container my-3">
+    <div class="row mb-3">
+        <div class="d-flex justify-content-between align-content-center">
+            <div class="display-6">
+                <a href="/Product/Index"><i class="bi bi-arrow-left text-dark"></i></a> Edit Product
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <form method="post" enctype="multipart/form-data">
+            <input type="hidden" name="Id" value="@Model.product.Id">
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Product Name</label>
+                <input type="text" class="form-control" id="name" name="Name" value="@Model.product.Name">
+            </div>
+            <div class="mb-3">
+                <label for="Description" class="form-label">Product Description</label>
+                <input type="text" class="form-control" id="Description" name="Description"
+                       value="@Model.product.Description">
+            </div>
+            <div class="mb-3">
+                <label for="Price" class="form-label">Product Price</label>
+                <input type="number" class="form-control" id="Price" name="Price"
+                       value="@Model.product.Price">
+            </div>
+            <div class="mb-3">
+                <label for="Img" class="form-label">Product Img</label>
+                <input type="file" class="form-control" id="Img" name="file" accept="image/*">
+                <div class="mt-2">
+                    <img id="imagePreview" src="@Url.Content("~/images/" + Model.product.Img)" 
+                         alt="Image Preview" style="max-width: 10%; display: block;" />
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="Quntity" class="form-label">Product Quantity</label>
+                <input type="number" class="form-control" id="Quntity" name="Quntity"
+                       value="@Model.product.Quntity">
+            </div>
+            <div class="mb-3">
+                <label for="Discount" class="form-label">Product Discount</label>
+                <input type="number" class="form-control" id="Discount" name="Discount"
+                       value="@Model.product.Discount">
+            </div>
+            <div class="mb-3">
+                <label for="CategoryName" class="form-label">Category Name</label>
+                <select name="CategoryId" class="form-select">
+                    @foreach (var item in Model.categories)
+                    {
+                        <option value="@item.Id">
+                            @item.Name
+                        </option>
+                    }
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('Img').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById('imagePreview');
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = '@Url.Content("~/images/" + Model.product.Img)';
+            preview.style.display = 'block';
+        }
+    });
+</script>
