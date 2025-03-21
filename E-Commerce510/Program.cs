@@ -1,6 +1,7 @@
 using E_Commerce510.Data;
 using E_Commerce510.Models;
 using E_Commerce510.Repositories;
+using E_Commerce510.Repositories.IRepositories;
 using E_Commerce510.Repositories.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +33,8 @@ namespace E_Commerce510
 
             builder.Services.AddScoped<ICompanyRepository,CompanyRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+
 
             var app = builder.Build();
 

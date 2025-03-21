@@ -52,10 +52,13 @@
     </form>
 
     <!-- Separate Form for Delete Account -->
-    <form asp-action="Delete" method="post" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
-        @Html.AntiForgeryToken()
-        <button type="submit" class="btn btn-danger mt-3">Delete Account</button>
-    </form>
+    @if (User.IsInRole("Customer"))
+    {
+        <form asp-action="Delete" method="post" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-danger mt-3">Delete Account</button>
+        </form>
+    }
 </div>
 
 @section Scripts {
