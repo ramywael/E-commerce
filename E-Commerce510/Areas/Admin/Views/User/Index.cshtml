@@ -1,50 +1,76 @@
-﻿@section Scripts {
-@if (TempData["Notification"] != null)
+﻿@model IEnumerable<ApplicationUser>
+
+@section Scripts {
+    @if (TempData["Notification"] != null)
     {
         <script>
             Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: '@TempData["Notification"]',
-                showConfirmButton: false,
-                timer: 3000
+            icon: 'success',
+            title: 'Success',
+            text: '@TempData["Notification"]',
+            showConfirmButton: false,
+            timer: 3000
             });
         </script>
     }
 }
 
 
-    <div class="container my-3">
-        <div class="container-fluid">
-            <div class="row mb-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h2 class="display-6 m-0">All Users</h2>
-                    <a href="/Admin/User/Create" class="btn btn-success">
-                        <i class="bi bi-plus-square"></i> Create new User
-                    </a>
-                </div>
+<div class="container my-3">
+    <div class="container-fluid">
+        <div class="row mb-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="display-6 m-0">All Users</h2>
+                <a href="/Admin/User/Create" class="btn btn-success">
+                    <i class="bi bi-plus-square"></i> Create new User
+                </a>
             </div>
+        </div>
 
-            <div class="row mt-3">
-                <div class="col">
-                    <table class="table table-hover text-center">
-                        <thead class="table-dark">
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Model)
+        <div class="row mb-3">
+            <form>
+                <div class="col-12 d-flex justify-content-between align-items-center">
+                    <input type="text" name="query" value="" placeholder="Serach By Name Or Email" class="form-control mx-3" />
+                    <input type="submit" value="Search" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col">
+                <table class="table table-hover text-center">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
                         {
                             <tr>
                                 <th scope="row">@item.Id</th>
-                                <td>@item.Name</td>
+                                <td>@item.UserName</td>
+                                <td>@item.Email</td>
                                 <td>
-                                    <a href="/Admin/User/Edit?UserId=@item.Id" class="btn btn-warning rounded me-2">
+                                    <a href="/Admin/User/Edit?UserId=@item.Id" class="btn btn-info rounded me-2">
                                         <i class="bi bi-pencil-square"></i> Edit
                                     </a>
+
+                                    @if (item.LockoutEnabled)
+                                    {
+                                        <a href="/Admin/User/Status?UserId=@item.Id" class="btn btn-danger rounded me-2">
+                                            <i class="bi bi-pencil-square"></i> Block
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="/Admin/User/Status?UserId=@item.Id" class="btn btn-warning rounded me-2">
+                                            <i class="bi bi-pencil-square"></i> UnBlock
+                                        </a>
+                                    }
                                     <a href="#" class="btn btn-danger rounded delete-btn" data-bs-toggle="modal"
                                        data-bs-target="#deleteModal" data-User-id="@item.Id">
                                         <i class="bi bi-trash3-fill"></i> Delete
