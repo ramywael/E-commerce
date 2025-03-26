@@ -66,8 +66,11 @@ namespace E_Commerce510.Areas.identity.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            return View();
+            return View(new LoginVm());
         }
+
+
+        public IActionResult Block() => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -80,6 +83,11 @@ namespace E_Commerce510.Areas.identity.Controllers
 
                 if (appUser != null)
                 {
+                    if(appUser.LockoutEnd.HasValue && appUser.LockoutEnd > DateTimeOffset.UtcNow)
+                    {
+
+                        return RedirectToAction("Block");
+                    }
                     bool result = await _userManager.CheckPasswordAsync(appUser, loginVm.Password);
                     if (result)
                     {
@@ -96,7 +104,7 @@ namespace E_Commerce510.Areas.identity.Controllers
                     ModelState.AddModelError("Email", "Cannot find Your Email");
                 }
             }
-            return View();
+            return View(loginVm);
         }
 
         public async Task<IActionResult> Logout()

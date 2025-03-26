@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using E_Commerce510.Data;
 using E_Commerce510.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,15 +11,28 @@ namespace E_Commerce510.Areas.Customer.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         ApplicationDbContext dbContext = new ApplicationDbContext();
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger,UserManager<ApplicationUser> userManager,SignInManager<ApplicationUser> signInManager)
         {
             _logger = logger;
+            this._userManager = userManager;
+            this._signInManager = signInManager;
         }
 
-        public IActionResult Index(int categoryId, string productName, int minPrice, int maxPrice, bool isHot)
+        public async Task<IActionResult> Index(int categoryId, string productName, int minPrice, int maxPrice, bool isHot)
         {
+
+            var user= await _userManager.GetUserAsync(User);
+
+            if(user!=null && user.LockoutEnd.HasValue && user.LockoutEnd> DateTimeOffset.UtcNow)
+            {
+                await _signInManager.SignOutAsync();
+                return RedirectToAction("Block", "Account", new {area="Identity" });
+            }
+
             IQueryable<Product> products = dbContext.Products.Include(e => e.Category);
 
 

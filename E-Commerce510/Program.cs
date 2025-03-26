@@ -1,4 +1,5 @@
 using E_Commerce510.Data;
+using E_Commerce510.Middlewares;
 using E_Commerce510.Models;
 using E_Commerce510.Repositories;
 using E_Commerce510.Repositories.IRepositories;
@@ -50,7 +51,8 @@ namespace E_Commerce510
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseMiddleware<CheckBlockedUserMiddleware>();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(

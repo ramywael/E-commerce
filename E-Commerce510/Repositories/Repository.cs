@@ -60,7 +60,7 @@ namespace E_Commerce510.Repositories
                 }
             }
 
-            if (isTrack)
+            if (!isTrack)
             {
                 entities = entities.AsNoTracking();
             }

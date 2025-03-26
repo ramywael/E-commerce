@@ -24,7 +24,8 @@
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 d-flex flex-grow-4">
                         <li class="nav-item"><a class="nav-link active" aria-current="page" href="#!">Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="#!">About</a></li>
-                        @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin")){
+                        @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                        {
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Management</a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -42,6 +43,7 @@
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
                         @if (User.Identity.IsAuthenticated)
                         {
+                            
                             <li class="nav-item"><a class="nav-link" href="#!">Welcome @User.Identity.Name</a></li>
                             <li class="nav-item"><a class="nav-link" href="/Identity/Account/Profile">Profile</a></li>
                             <li class="nav-item"><a class="nav-link" href="/Identity/Account/Logout">Logout</a></li>
@@ -51,7 +53,6 @@
                             <li class="nav-item"><a class="nav-link" href="/Identity/Account/Login">Login</a></li>
                             <li class="nav-item"><a class="nav-link" href="/Identity/Account/Register">Register</a></li>
                         }
-
                     </ul>
                     <form class="d-flex">
                         <button class="btn btn-outline-dark" type="submit">

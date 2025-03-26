@@ -13,8 +13,9 @@ namespace E_Commerce510.Data
         public DbSet<Company> Companies { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-       : base(options)
+        : base(options)
         {
+
         }
 
 

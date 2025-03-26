@@ -6,6 +6,6 @@ namespace E_Commerce510.Repositories.IRepositories
 {
     public interface IUserRepository : IRepository<ApplicationUser>
     {
-        IEnumerable<ApplicationUser> GetUsersInRole(string roleName, Expression<Func<ApplicationUser, bool>>? filter = null);
+        IQueryable<ApplicationUser> GetUsersInRole(string roleName, Expression<Func<ApplicationUser, bool>>? filter = null);
     }
 }
