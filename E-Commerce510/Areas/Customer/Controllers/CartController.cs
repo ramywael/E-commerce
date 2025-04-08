@@ -4,6 +4,7 @@ using E_Commerce510.Repositories.IRepositories;
 using E_Commerce510.Repositories.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Stripe.Checkout;
 
 namespace E_Commerce510.Areas.Customer.Controllers
 {
@@ -156,6 +157,44 @@ namespace E_Commerce510.Areas.Customer.Controllers
             _cartRepository.Commit();
 
             return RedirectToAction("Index");
+        }
+
+
+        public IActionResult Pay()
+        {
+            var userApp = _userManager.GetUserId(User);
+            var cart = _cartRepository.Get(filter: e => e.ApplicationUserId == userApp, includes: [e => e.product]).ToList();
+            var options = new SessionCreateOptions
+            {
+                PaymentMethodTypes = new List<string> { "card" },
+                LineItems = new List<SessionLineItemOptions>(),
+                Mode = "payment",
+                SuccessUrl = $"{Request.Scheme}://{Request.Host}/Customer/Checkout/Success",
+                CancelUrl = $"{Request.Scheme}://{Request.Host}/Customer/Checkout/Cancel",
+            };
+            foreach(var item in cart)
+            {
+                options.LineItems.Add(
+                 new SessionLineItemOptions
+                 {
+                     PriceData = new SessionLineItemPriceDataOptions
+                     {
+                         Currency = "egp",
+                         ProductData = new SessionLineItemPriceDataProductDataOptions
+                         {
+                             Name = item.product.Name,
+                             Description = item.product.Description,
+                         },
+                         UnitAmount = (long)item.product.Price*100,
+                     },
+                     Quantity = item.Count,
+                 }
+               );
+            }
+           
+            var service = new SessionService();
+            var session = service.Create(options);
+            return Redirect(session.Url);
         }
     }
 }
