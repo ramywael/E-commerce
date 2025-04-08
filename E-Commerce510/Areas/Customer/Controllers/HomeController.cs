@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using E_Commerce510.Data;
 using E_Commerce510.Models;
+using E_Commerce510.Repositories.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,13 +14,16 @@ namespace E_Commerce510.Areas.Customer.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        ApplicationDbContext dbContext = new ApplicationDbContext();
+        private readonly IProductRepository _productRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public HomeController(ILogger<HomeController> logger,UserManager<ApplicationUser> userManager,SignInManager<ApplicationUser> signInManager)
+        public HomeController(ILogger<HomeController> logger,UserManager<ApplicationUser> userManager,SignInManager<ApplicationUser> signInManager,IProductRepository productRepository,ICategoryRepository categoryRepository)
         {
             _logger = logger;
             this._userManager = userManager;
             this._signInManager = signInManager;
+            this._productRepository = productRepository;
+            this._categoryRepository = categoryRepository;
         }
 
         public async Task<IActionResult> Index(int categoryId, string productName, int minPrice, int maxPrice, bool isHot)
@@ -27,48 +31,52 @@ namespace E_Commerce510.Areas.Customer.Controllers
 
             var user= await _userManager.GetUserAsync(User);
 
-            if(user!=null && user.LockoutEnd.HasValue && user.LockoutEnd> DateTimeOffset.UtcNow)
+            if(user!=null && user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.UtcNow)
             {
                 await _signInManager.SignOutAsync();
                 return RedirectToAction("Block", "Account", new {area="Identity" });
             }
 
-            IQueryable<Product> products = dbContext.Products.Include(e => e.Category);
+            IQueryable<Product> products = _productRepository.Get(includes: [e=>e.Category]);
 
 
 
             if (productName != null)
             {
-                products = products.Where(e => e.Name.Contains(productName));
+                //products = products.Where(e => e.Name.Contains(productName));
+                products = _productRepository.Get(filter: e => e.Name.Contains(productName));
 
             }
 
             if (minPrice > 0)
             {
-                products = products.Where(e => e.Price > minPrice);
+                //products = products.Where(e => e.Price > minPrice);
+                products = _productRepository.Get(filter:e=>e.Price >= minPrice);
 
             }
 
 
             if (maxPrice > 0)
             {
-                products = products.Where(e => e.Price < maxPrice);
+                //products = products.Where(e => e.Price < maxPrice);
+                products = _productRepository.Get(e=>e.Price < maxPrice);
 
             }
 
             if (isHot)
             {
-                products = products.Where(e => e.Discount > 12);
+                products = _productRepository.Get(e=>e.Discount >12);
 
             }
 
             if (categoryId != 0)
             {
-                products = products.Where(e => e.CategoryId == categoryId);
+                //products = products.Where(e => e.CategoryId == categoryId);
+                products = _productRepository.Get(filter:e=>e.CategoryId==categoryId);
+
 
             }
-
-            ViewBag.AllCategories = dbContext.Categories.ToList();
+            ViewBag.AllCategories = _categoryRepository.Get().ToList();
             ViewBag.CategoryId = categoryId;
             ViewBag.ProductName = productName;
             ViewBag.MinPrice = minPrice;
@@ -101,21 +109,16 @@ namespace E_Commerce510.Areas.Customer.Controllers
         //}
         public IActionResult Details(int productId)
         {
-            var product = dbContext.Products.Include(e => e.Category).FirstOrDefault(e => e.Id == productId);
-
-
-
+            //var product = dbContext.Products.Include(e => e.Category).FirstOrDefault(e => e.Id == productId);
+            var product = _productRepository.GetOne(includes: [e => e.Category], filter: e=>e.Id==productId);
 
             if (product != null)
             {
-                var productWithSameCategory = dbContext.Products.Where(e => e.CategoryId == product.CategoryId).Skip(productId).Take(4)
-                    .ToList();
-                //var productWithSameCategoryObject = new
-                //{
-                //    Product= product,
-                //    ProductWithSameCategory= productWithSameCategory,
-                //};
+                //var productWithSameCategory = dbContext.Products.Where(e => e.CategoryId == product.CategoryId).Skip(productId).Take(4)
+                //    .ToList();
 
+                var productWithSameCategory = _productRepository.Get(filter:e=>e.CategoryId==product.CategoryId).Skip(productId).Take(4)
+                    .ToList();
                 ViewBag.productWithSameCategory = productWithSameCategory;
                 ViewData["productWithSameCategory"] = productWithSameCategory;
 

@@ -12,6 +12,7 @@ namespace E_Commerce510.Data
 
         public DbSet<Company> Companies { get; set; }
 
+        public DbSet<Cart> Carts { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
         {
@@ -30,10 +31,31 @@ namespace E_Commerce510.Data
         {
             base.OnConfiguring(optionsBuilder);
 
-            optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=E-Commerce510;Integrated Security=True;TrustServerCertificate=True");
+            optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=E-Commerce;Integrated Security=True;TrustServerCertificate=True");
         }
-        public DbSet<E_Commerce510.Models.ViewModel.RegisterVm> RegisterVm { get; set; } = default!;
-        public DbSet<E_Commerce510.Models.ViewModel.LoginVm> LoginVm { get; set; } = default!;
 
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+            builder.Entity<Cart>().HasKey(e => new
+            {
+                e.ProductId,
+                e.ApplicationUserId
+            });
+
+            // Configure Product -> Company relationship
+            builder.Entity<Product>()
+                .HasOne(p => p.Company)
+                .WithMany(c => c.Products)
+                .HasForeignKey(p => p.CompanyId)
+                .IsRequired(false);
+
+            // Configure Product -> Category relationship
+            builder.Entity<Product>()
+                .HasOne(p => p.Category)
+                .WithMany(c => c.Products)
+                .HasForeignKey(p => p.CategoryId)
+                .IsRequired(true);
+        }
     }
 }

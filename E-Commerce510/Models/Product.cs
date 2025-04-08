@@ -22,14 +22,12 @@ namespace E_Commerce510.Models
         public double Discount { get; set; }
 
         public int? CompanyId { get; set; }
-        public int CategoryId { get; set; }
         [ValidateNever]
-        [ForeignKey("CompanyId")]
-
         public Company Company { get; set; }
 
+        public int CategoryId { get; set; }
         [ValidateNever]
-
         public Category Category { get; set; }
     }
+
 }

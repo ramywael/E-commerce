@@ -1,4 +1,6 @@
-﻿<!-- Header-->
+﻿@model List<Product>
+
+<!-- Header-->
 <header class="bg-dark py-5">
     <div class="container px-4 px-lg-5 my-5">
         <div class="text-center text-white">
@@ -51,7 +53,7 @@
                 <!-- Hot Product Checkbox -->
                 <div class="col-md-1">
                     <div class="form-check">
-        <input type="checkbox" class="form-check-input" name="isHot" value="true" id="isHot" @(ViewBag.IsHot ? "checked" : "")>
+                        <input type="checkbox" class="form-check-input" name="isHot" value="true" id="isHot" @(ViewBag.IsHot ? "checked" : "")>
                         <label class="form-check-label" for="isHot">Hot</label>
                         <input type="hidden" name="isHot" value="false"> <!-- This ensures unchecked state sends "false" -->
                     </div>
@@ -73,7 +75,7 @@
             @foreach (var item in Model)
             {
                 <div class="col mb-5">
-                    <div class="card h-100">
+                    <div class="card @(item.Quntity == 0 ? "opacity-50" : "")">
                         <!-- Sale badge-->
                         <div class="badge bg-dark text-white position-absolute" style="top: 0.5rem; right: 0.5rem">@item.Category.Name</div>
                         <!-- Discount badge-->
@@ -103,8 +105,27 @@
                         </div>
                         <!-- Product actions-->
                         <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                            <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="/Customer/Home/Details?productId=@item.Id">Show Details</a></div>
+                            @if (item.Quntity > 0)
+                            {
+
+                                @if(item.Quntity <= 3)
+                                {
+                                    <div class="text-center">
+                                        <span class="text-danger fw-bold">Only @item.Quntity In Stock</span>
+                                    </div>
+                                }
+                                <div class="text-center">
+                                    <a class="btn btn-outline-dark mt-auto" href="/Customer/Home/Details?productId=@item.Id">Show Details</a>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center">
+                                    <span class="text-danger fw-bold">🚫 Out Of Stock</span>
+                                </div>
+                            }
                         </div>
+
                     </div>
                 </div>
             }
