@@ -13,6 +13,8 @@ namespace E_Commerce510.Data
         public DbSet<Company> Companies { get; set; }
 
         public DbSet<Cart> Carts { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
         {
@@ -43,6 +45,11 @@ namespace E_Commerce510.Data
                 e.ApplicationUserId
             });
 
+            builder.Entity<OrderItem>().HasKey(e => new
+            {
+                e.ProductId,
+                e.OrderId,
+            });
             // Configure Product -> Company relationship
             builder.Entity<Product>()
                 .HasOne(p => p.Company)
