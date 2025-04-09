@@ -14,12 +14,16 @@ namespace E_Commerce510.Areas.Customer.Controllers
         private readonly ICartRepository _cartRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IProductRepository _productRepository;
+        private readonly IOrderItemRepository _orderItemRepository;
+        private readonly IOrderRepository _orderRepository;
 
-        public CartController(ICartRepository cartRepository, UserManager<ApplicationUser> userManager, IProductRepository productRepository)
+        public CartController(ICartRepository cartRepository, UserManager<ApplicationUser> userManager, IProductRepository productRepository,IOrderItemRepository orderItemRepository,IOrderRepository orderRepository)
         {
             this._cartRepository = cartRepository;
             this._userManager = userManager;
             this._productRepository = productRepository;
+            this._orderItemRepository = orderItemRepository;
+            this._orderRepository = orderRepository;
         }
         public IActionResult Index()
         {
@@ -164,15 +168,40 @@ namespace E_Commerce510.Areas.Customer.Controllers
         {
             var userApp = _userManager.GetUserId(User);
             var cart = _cartRepository.Get(filter: e => e.ApplicationUserId == userApp, includes: [e => e.product]).ToList();
+
+            Order order = new Order();
+            order.ApplicationUserId = userApp;
+            order.OrderDate = DateTime.Now;
+            order.Status = enOrderStatus.Pending;
+            order.OrderTotal = cart.Sum(e => e.product.Price * e.Count);
+
+            _orderRepository.Create(order);
+            _orderRepository.Commit();
             var options = new SessionCreateOptions
             {
                 PaymentMethodTypes = new List<string> { "card" },
                 LineItems = new List<SessionLineItemOptions>(),
                 Mode = "payment",
-                SuccessUrl = $"{Request.Scheme}://{Request.Host}/Customer/Checkout/Success",
+                SuccessUrl = $"{Request.Scheme}://{Request.Host}/Customer/Checkout/Success?orderId={order.OrderId}",
                 CancelUrl = $"{Request.Scheme}://{Request.Host}/Customer/Checkout/Cancel",
             };
-            foreach(var item in cart)
+    
+
+            List<OrderItem> OrderItems = [];
+            foreach (var item in cart)
+            {
+                OrderItems.Add(new OrderItem
+                {
+                    OrderId=order.OrderId,
+                    Count = item.Count,
+                    ProductId = item.ProductId,
+                    Price = item.product.Price,
+                });
+            }
+            _orderItemRepository.CreateRange(OrderItems);
+            _orderItemRepository.Commit();
+
+            foreach (var item in cart)
             {
                 options.LineItems.Add(
                  new SessionLineItemOptions
@@ -194,6 +223,8 @@ namespace E_Commerce510.Areas.Customer.Controllers
            
             var service = new SessionService();
             var session = service.Create(options);
+            order.SessionId = session.Id;
+            _orderRepository.Commit();
             return Redirect(session.Url);
         }
     }

@@ -26,6 +26,6 @@
 
         public string? PaymentStripeId { get; set; }
 
-        public string SessionId { get; set; }
+        public string? SessionId { get; set; }
     }
 }

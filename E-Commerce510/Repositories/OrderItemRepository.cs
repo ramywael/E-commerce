@@ -12,5 +12,10 @@ namespace E_Commerce510.Repositories
         {
             this.dbContext = dbContext;
         }
+
+        public void CreateRange(IEnumerable<OrderItem> entities)
+        {
+            dbContext.OrderItems.AddRange(entities);
+        }
     }
 }

@@ -5,5 +5,6 @@ namespace E_Commerce510.Repositories.IRepositories
 {
     public interface IOrderItemRepository : IRepository<OrderItem>
     {
+        public void CreateRange(IEnumerable<OrderItem> entities);
     }
 }

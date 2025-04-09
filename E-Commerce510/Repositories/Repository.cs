@@ -21,13 +21,6 @@ namespace E_Commerce510.Repositories
             dbSet.Add(entity);
         }
 
-        public void CreateAll(List<T> entities)
-        {
-            dbSet.AddRange(entities);
-        }
-
-
-
         public void Edit(T entity)
         {
             dbSet.Update(entity);

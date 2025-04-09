@@ -7,9 +7,6 @@ namespace E_Commerce510.Repositories.Repositories
     public interface IRepository<T> where T : class
     {
         public void Create(T entity);
-        public void CreateAll(List<T> entities);
-
-
 
         public void Edit(T entity);
 
