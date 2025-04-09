@@ -1,4 +1,5 @@
-﻿using E_Commerce510.Models;
+﻿using E_Commerce510.Data;
+using E_Commerce510.Models;
 using E_Commerce510.Models.ViewModel;
 using E_Commerce510.Repositories.IRepositories;
 using E_Commerce510.Repositories.Repositories;
@@ -12,14 +13,16 @@ namespace E_Commerce510.Areas.Customer.Controllers
     public class CartController : Controller
     {
         private readonly ICartRepository _cartRepository;
+        private readonly ApplicationDbContext _applicationDbContext;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IProductRepository _productRepository;
         private readonly IOrderItemRepository _orderItemRepository;
         private readonly IOrderRepository _orderRepository;
 
-        public CartController(ICartRepository cartRepository, UserManager<ApplicationUser> userManager, IProductRepository productRepository,IOrderItemRepository orderItemRepository,IOrderRepository orderRepository)
+        public CartController(ICartRepository cartRepository, ApplicationDbContext applicationDbContext, UserManager<ApplicationUser> userManager, IProductRepository productRepository, IOrderItemRepository orderItemRepository, IOrderRepository orderRepository)
         {
             this._cartRepository = cartRepository;
+            this._applicationDbContext = applicationDbContext;
             this._userManager = userManager;
             this._productRepository = productRepository;
             this._orderItemRepository = orderItemRepository;
@@ -87,8 +90,8 @@ namespace E_Commerce510.Areas.Customer.Controllers
             }
             else
             {
-                if(product.Quntity >=cartItem.Count+count)
-                cartItem.Count += count;
+                if (product.Quntity >= cartItem.Count + count)
+                    cartItem.Count += count;
             }
             _cartRepository.Commit();
 
@@ -168,64 +171,75 @@ namespace E_Commerce510.Areas.Customer.Controllers
         {
             var userApp = _userManager.GetUserId(User);
             var cart = _cartRepository.Get(filter: e => e.ApplicationUserId == userApp, includes: [e => e.product]).ToList();
-
-            Order order = new Order();
-            order.ApplicationUserId = userApp;
-            order.OrderDate = DateTime.Now;
-            order.Status = enOrderStatus.Pending;
-            order.OrderTotal = cart.Sum(e => e.product.Price * e.Count);
-
-            _orderRepository.Create(order);
-            _orderRepository.Commit();
-            var options = new SessionCreateOptions
+            using var transaction = _applicationDbContext.Database.BeginTransaction();
+            try
             {
-                PaymentMethodTypes = new List<string> { "card" },
-                LineItems = new List<SessionLineItemOptions>(),
-                Mode = "payment",
-                SuccessUrl = $"{Request.Scheme}://{Request.Host}/Customer/Checkout/Success?orderId={order.OrderId}",
-                CancelUrl = $"{Request.Scheme}://{Request.Host}/Customer/Checkout/Cancel",
-            };
-    
+                Order order = new Order();
+                order.ApplicationUserId = userApp;
+                order.OrderDate = DateTime.Now;
+                order.Status = enOrderStatus.Pending;
+                order.OrderTotal = cart.Sum(e => e.product.Price * e.Count);
 
-            List<OrderItem> OrderItems = [];
-            foreach (var item in cart)
-            {
-                OrderItems.Add(new OrderItem
+                _orderRepository.Create(order);
+                _orderRepository.Commit();
+                var options = new SessionCreateOptions
                 {
-                    OrderId=order.OrderId,
-                    Count = item.Count,
-                    ProductId = item.ProductId,
-                    Price = item.product.Price,
-                });
-            }
-            _orderItemRepository.CreateRange(OrderItems);
-            _orderItemRepository.Commit();
+                    PaymentMethodTypes = new List<string> { "card" },
+                    LineItems = new List<SessionLineItemOptions>(),
+                    Mode = "payment",
+                    SuccessUrl = $"{Request.Scheme}://{Request.Host}/Customer/Checkout/Success?orderId={order.OrderId}",
+                    CancelUrl = $"{Request.Scheme}://{Request.Host}/Customer/Checkout/Cancel",
+                };
 
-            foreach (var item in cart)
-            {
-                options.LineItems.Add(
-                 new SessionLineItemOptions
-                 {
-                     PriceData = new SessionLineItemPriceDataOptions
+
+                List<OrderItem> OrderItems = [];
+                foreach (var item in cart)
+                {
+                    OrderItems.Add(new OrderItem
+                    {
+                        OrderId = order.OrderId,
+                        Count = item.Count,
+                        ProductId = item.ProductId,
+                        Price = item.product.Price,
+                    });
+                }
+                _orderItemRepository.CreateRange(OrderItems);
+                _orderItemRepository.Commit();
+
+                foreach (var item in cart)
+                {
+                    options.LineItems.Add(
+                     new SessionLineItemOptions
                      {
-                         Currency = "egp",
-                         ProductData = new SessionLineItemPriceDataProductDataOptions
+                         PriceData = new SessionLineItemPriceDataOptions
                          {
-                             Name = item.product.Name,
-                             Description = item.product.Description,
+                             Currency = "egp",
+                             ProductData = new SessionLineItemPriceDataProductDataOptions
+                             {
+                                 Name = item.product.Name,
+                                 Description = item.product.Description,
+                             },
+                             UnitAmount = (long)item.product.Price * 100,
                          },
-                         UnitAmount = (long)item.product.Price*100,
-                     },
-                     Quantity = item.Count,
-                 }
-               );
+                         Quantity = item.Count,
+                     }
+                   );
+                }
+
+                var service = new SessionService();
+                var session = service.Create(options);
+                order.SessionId = session.Id;
+                _orderRepository.Commit();
+                transaction.Commit();
+                return Redirect(session.Url);
             }
-           
-            var service = new SessionService();
-            var session = service.Create(options);
-            order.SessionId = session.Id;
-            _orderRepository.Commit();
-            return Redirect(session.Url);
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                return RedirectToAction("NotFoundPage", "Home");
+
+            }
+
         }
     }
 }
