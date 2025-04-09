@@ -1,0 +1,21 @@
+﻿@{
+    ViewData["Title"] = "Refund Complete";
+}
+
+<div class="container mt-5">
+    <div class="card text-center shadow rounded-4 border-success">
+        <div class="card-body">
+            <div class="text-success mb-3">
+                <i class="bi bi-check-circle-fill" style="font-size: 4rem;"></i>
+            </div>
+            <h2 class="card-title text-success">Refund Processed Successfully</h2>
+            <p class="lead mt-3">
+                Your refund has been completed. The amount will be returned to your original payment method shortly.
+            </p>
+            <p class="text-muted">
+                Thank you for shopping with us. If you have any questions, feel free to <a href="/Contact">contact support</a>.
+            </p>
+            <a asp-controller="Order" asp-action="Index" class="btn btn-outline-primary mt-3">Back to My Orders</a>
+        </div>
+    </div>
+</div>

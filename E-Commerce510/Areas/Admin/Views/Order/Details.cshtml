@@ -1,0 +1,72 @@
+﻿@model E_Commerce510.Models.ViewModel.OrderWithItemsVM
+
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<!-- Bootstrap Icons (optional, for nice refund icon) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+<div class="container mt-5">
+    <div class="card shadow rounded-4">
+        <div class="card-body">
+            <h2 class="card-title mb-4 text-primary">Order #@Model.Order.OrderId</h2>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <p><strong>Customer E-mail:</strong> @Model.Order.ApplicationUser?.Email</p>
+                    <p><strong>Order Date:</strong> @Model.Order.OrderDate.ToString("dd MMM yyyy")</p>
+                    <p><strong>Status:</strong> @Model.Order.Status</p>
+                    <p><strong>Payment:</strong> @(Model.Order.PaymentStatus ? "✅ Paid" : "❌ Pending")</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Order Total:</strong> @Model.Order.OrderTotal.ToString("C")</p>
+                    @if (!string.IsNullOrEmpty(Model.Order.Carrier))
+                    {
+                            <p><strong>Carrier:</strong> @Model.Order.Carrier</p>
+                            <p><strong>Tracking Number:</strong> @Model.Order.TrackingNumber</p>
+                    }
+                </div>
+            </div>
+
+            <hr />
+
+            <h4 class="mb-3">Ordered Items</h4>
+            <table class="table table-bordered table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.OrderItems)
+                    {
+                            <tr>
+                                <td>@item.Product?.Name</td>
+                                <td>@item.Price.ToString("C")</td>
+                                <td>@item.Count</td>
+                                <td>@((item.Price * item.Count).ToString("C"))</td>
+                            </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="text-end mt-4">
+                <a asp-action="Index" class="btn btn-outline-secondary me-2">Back to Orders</a>
+
+                @if (Model.Order.PaymentStatus && Model.Order.Status != enOrderStatus.Canceled)
+                {
+                        <form asp-controller="Order" asp-action="Refund" method="post" class="d-inline">
+                            <input type="hidden" name="orderId" value="@Model.Order.OrderId" />
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to refund this order?');">
+                                <i class="bi bi-arrow-counterclockwise"></i> Refund
+                            </button>
+                        </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>
