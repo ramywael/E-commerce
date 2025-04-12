@@ -32,11 +32,6 @@ namespace E_Commerce510.Repositories
             dbSet.Remove(entity);
         }
 
-        public void DeleteAll(List<T> entities)
-        {
-            dbSet.RemoveRange(entities);
-        }
-
         public IQueryable<T> Get(Expression<Func<T, bool>>? filter = null, Expression<Func<T, object>>[]? includes = null, bool isTrack = true)
         {
             IQueryable<T> entities = dbSet;

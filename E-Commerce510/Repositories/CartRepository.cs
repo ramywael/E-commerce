@@ -12,5 +12,10 @@ namespace E_Commerce510.Repositories
         {
             this.dbContext = dbContext;
         }
+
+        public void DeleteRange(IEnumerable<Cart> carts)
+        {
+            dbContext.Carts.RemoveRange(carts);
+        }
     }
 }

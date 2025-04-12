@@ -13,7 +13,6 @@ namespace E_Commerce510.Repositories.Repositories
 
         public void Delete(T entity);
 
-        public void DeleteAll(List<T> entities);
         public IQueryable<T> Get(Expression<Func<T, bool>>? filter = null, Expression<Func<T, object>>[]? includes = null, bool isTrack = true);
         public void Commit();
 
